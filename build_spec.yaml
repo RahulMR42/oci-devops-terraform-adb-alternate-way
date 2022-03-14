@@ -1,0 +1,46 @@
+version: 0.1
+component: build
+timeoutInSeconds: 6000
+runAs: root
+shell: bash
+env:
+  # these are local variables to the build config
+  variables:
+    region: "us-ashburn-1" # Set your OCI Region.
+
+  # the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service
+  # you can then access the value of that secret in your build_spec.yaml commands
+  vaultVariables:
+    pem_key: ocid1.vaultsecret.oc1.iad.xx
+    fingerprint: ocid1.vaultsecret.oc1.iad.xx
+    tenancy_ocid: ocid1.vaultsecret.oc1.iad.xx
+    user_ocid: ocid1.vaultsecret.oc1.iad.xx
+    compartment_ocid: ocid1.vaultsecret.oc1.iad.xx
+    aws_access_key_id: ocid1.vaultsecret.oc1.iad.xx
+    aws_secret_access_key: ocid1.vaultsecret.oc1.iad.xx
+    
+ 
+
+steps:
+  - type: Command
+    name: "Install Terraform"
+    timeoutInSeconds: 40
+    command: |
+      yum install -y yum-utils
+      yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+      yum -y install terraform
+      
+      
+
+  - type: Command
+    name: "Terraform actions"
+    timeoutInSeconds: 40
+    command: |
+      cd ${OCI_PRIMARY_SOURCE_DIR}
+      pwd
+      unset OCI_AUTH
+      ls -ltr
+      terraform version
+      terraform init -migrate-state
+      terraform plan 
+      terraform apply -auto-approve      
